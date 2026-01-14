@@ -1,0 +1,49 @@
+body {
+    margin: 0;
+    overflow: hidden;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #181818;
+    color: #e0e0e0;
+}
+
+#viz {
+    width: 100vw;
+    height: 100vh;
+    display: block;
+}
+
+#controls {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    pointer-events: none; /* Allows clicking through the text to the graph */
+    z-index: 10;
+}
+
+h1 { margin: 0; font-size: 1.5rem; color: #ff9800; }
+p { margin: 5px 0; font-size: 0.8rem; opacity: 0.7; }
+
+/* Graph Elements */
+.node circle {
+    stroke: #333;
+    stroke-width: 2px;
+    transition: stroke 0.2s;
+}
+
+.node:hover circle {
+    stroke: #fff;
+}
+
+.node text {
+    font-size: 12px;
+    fill: #ffffff;
+    pointer-events: none;
+    text-shadow: 1px 1px 3px #000;
+}
+
+.link {
+    stroke: #555;
+    stroke-opacity: 0.5;
+    stroke-width: 2px;
+    fill: none;
+}

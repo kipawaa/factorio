@@ -4,11 +4,12 @@
 
 const CONFIG = {
     nodeRadius: 10,
-    forceStrength: -400,
-    linkDistance: 100,
+    forceStrength: -1000,
+    linkDistance: 500,
     colors: {
-        raw: "#ff9800",     // Orange for base materials
-        crafted: "#2196f3", // Blue for intermediate/final products
+        leaf: "#ff9800",
+        intermediate: "#2196f3",
+        root: "#4CAF50",
         link: "#555"
     }
 };
@@ -45,14 +46,24 @@ container.append('defs').append('marker')
 d3.json("recipes.json").then(data => {
     const nodes = data;
     const links = [];
-    const nodeMap = new Set(nodes.map(d => d.id));
+    const nodeMap = new Map(nodes.map(d => [d.id, d]));
+
+    // identify
+    const usedAsIngredient = new Set();
+    nodes.forEach(item => {
+        if (item.recipe && item.recipe.ingredients) {
+            item.recipe.ingredients.forEach(ingredient => {
+                usedAsIngredient.add(ingredient.id);
+            });
+        }
+    });
 
     // Process links
     nodes.forEach(d => {
         if (d.recipe && d.recipe.ingredients) {
-            d.recipe.ingredients.forEach(ing => {
-                if (nodeMap.has(ing.id)) {
-                    links.push({ source: ing.id, target: d.id });
+            d.recipe.ingredients.forEach(ingredient => {
+                if (nodeMap.has(ingredient.id)) {
+                    links.push({ source: ingredient.id, target: d.id });
                 }
             });
         }
@@ -80,10 +91,17 @@ d3.json("recipes.json").then(data => {
 
     node.append("circle")
         .attr("r", CONFIG.nodeRadius)
-        .attr("fill", d => d.recipe.ingredients.length === 0 ? CONFIG.colors.raw : CONFIG.colors.crafted)
+        .attr("fill", d => {
+            const isRoot = d.recipe.ingredients.length === 0;
+            const isLeaf = !usedAsIngredient.has(d.id);
+
+            if (isLeaf) return CONFIG.colors.leaf; // Green: End of the line (e.g., Rocket Silo)
+            if (isRoot) return CONFIG.colors.root;        // Orange: Root resource (e.g., Iron Ore)
+            return CONFIG.colors.intermediate;                   // Blue: Intermediate (e.g., Iron Gear)
+        })
         .on("click", (e, d) => {
             if (d.wiki_link) window.open(d.wiki_link, "_blank");
-        });
+        })
 
     node.append("text")
         .attr("dx", 15)

@@ -118,7 +118,7 @@ d3.json("recipes.json")
 
             node.append("circle")
             .attr("r", CONFIG.nodeRadius)
-            .on("click", (e, d) => {
+            .on("dblclick", (e, d) => {
                 if (d.wiki_link) window.open(d.wiki_link, "_blank");
             });
 

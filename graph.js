@@ -70,24 +70,38 @@ d3.json("recipes.json")
         function traverseToIngredient(root, callback) {
             if (!root) return;
 
-            const rootNode = d3.select(`#${root.id}`);
-            callback(rootNode); 
-            console.log("root node:", rootNode);
+            callback(d3.select(`#${root.id}`)); 
 
             if (root.recipe && root.recipe.ingredients) {
                 root.recipe.ingredients.forEach(ingredient => {
                     const node = nodeMap.get(ingredient.id);
                     if (node) {
                         // update links
-                        const linkElement = d3.select(`#link-${ingredient.id}-${root.id}`);
-                        callback(linkElement);
-                        console.log("link element:", linkElement);
+                        callback(d3.select(`#link-${ingredient.id}-${root.id}`));
                         
                         // update nodes
                         traverseToIngredient(node, callback);
                     }
                 });
             }
+        }
+
+        function traverseToProduct(root, callback) {
+            if (!root) return;
+
+            callback(d3.select(`#${root.id}`));
+
+            nodes.filter(node => 
+                node.recipe && 
+                node.recipe.ingredients && 
+                node.recipe.ingredients.some(ingredient => ingredient.id === root.id)
+            ).forEach(consumer => {
+                // update links
+                callback(d3.select(`#link-${root.id}-${consumer.id}`));
+
+                // update node
+                traverseToProduct(consumer, callback);
+            });
         }
 
         const simulation = d3.forceSimulation(nodes)
@@ -119,6 +133,7 @@ d3.json("recipes.json")
 
                 return `node ${type}`; 
             })
+            .on("contextmenu", e => e.preventDefault())
             .call(drag(simulation));
 
             node.append("circle")
@@ -147,9 +162,16 @@ d3.json("recipes.json")
                 if (!event.active) simulation.alphaTarget(0.3).restart();
                 event.subject.fx = event.subject.x;
                 event.subject.fy = event.subject.y;
-                traverseToIngredient(event.subject, (selection) => {
-                    selection.classed("highlight", true);
-                });
+
+                if (event.sourceEvent.buttons === 1) {
+                    traverseToIngredient(event.subject, (selection) => {
+                        selection.classed("highlight", true);
+                    });
+                } else {
+                    traverseToProduct(event.subject, (selection) => {
+                        selection.classed("highlight", true);
+                    });
+                }
             }
 
             function dragged(event) {
@@ -165,6 +187,7 @@ d3.json("recipes.json")
             }
 
             return d3.drag()
+                .filter(e => e.buttons === 1 || e.buttons === 2)
                 .on("start", dragstarted)
                 .on("drag", dragged)
                 .on("end", dragended);

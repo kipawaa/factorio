@@ -7,14 +7,6 @@ const CONFIG = {
     forceStrength: -4000, 
     linkDistance: 150,
     linkStrength: 0.1, 
-    
-    colors: {
-        leaf: "#4CAF50",
-        intermediate: "#2196f3",
-        root: "#ff9800",
-        raw: "#ff9800",
-        link: "#555",
-    },
 };
 
 const svg = d3.select("#viz");
@@ -65,17 +57,6 @@ d3.json("recipes.json")
             item.recipe?.ingredients?.forEach(ing => usedAsIngredient.add(ing.id));
         });
 
-        function traverseToIngredient(rootNode, callback) {
-            if (!rootNode) return;
-            callback(rootNode); 
-            if (rootNode.recipe && rootNode.recipe.ingredients) {
-                rootNode.recipe.ingredients.forEach(ing => {
-                    const fullNodeData = nodeMap.get(ing.id);
-                    if (fullNodeData) traverseToIngredient(fullNodeData, callback);
-                });
-            }
-        }
-
         nodes.forEach((d) => {
             if (d.recipe && d.recipe.ingredients) {
                 d.recipe.ingredients.forEach((ingredient) => {
@@ -85,6 +66,29 @@ d3.json("recipes.json")
                 });
             }
         });
+
+        function traverseToIngredient(root, callback) {
+            if (!root) return;
+
+            const rootNode = d3.select(`#${root.id}`);
+            callback(rootNode); 
+            console.log("root node:", rootNode);
+
+            if (root.recipe && root.recipe.ingredients) {
+                root.recipe.ingredients.forEach(ingredient => {
+                    const node = nodeMap.get(ingredient.id);
+                    if (node) {
+                        // update links
+                        const linkElement = d3.select(`#link-${ingredient.id}-${root.id}`);
+                        callback(linkElement);
+                        console.log("link element:", linkElement);
+                        
+                        // update nodes
+                        traverseToIngredient(node, callback);
+                    }
+                });
+            }
+        }
 
         const simulation = d3.forceSimulation(nodes)
             .force("link", d3.forceLink(links).id(d => d.id).distance(CONFIG.linkDistance))
@@ -97,6 +101,7 @@ d3.json("recipes.json")
             .data(links)
             .join("line")
             .attr("class", "link")
+            .attr("id", link => `link-${link.source.id}-${link.target.id}`)
             .attr("marker-end", "url(#arrowhead)");
 
         const node = container.append("g")
@@ -142,8 +147,8 @@ d3.json("recipes.json")
                 if (!event.active) simulation.alphaTarget(0.3).restart();
                 event.subject.fx = event.subject.x;
                 event.subject.fy = event.subject.y;
-                traverseToIngredient(event.subject, d => {
-                    d3.select(`#${d.id}`).classed("highlight", true);
+                traverseToIngredient(event.subject, (selection) => {
+                    selection.classed("highlight", true);
                 });
             }
 
@@ -156,9 +161,7 @@ d3.json("recipes.json")
                 if (!event.active) simulation.alphaTarget(0);
                 event.subject.fx = null;
                 event.subject.fy = null;
-                traverseToIngredient(event.subject, d => {
-                    d3.select(`#${d.id}`).classed("highlight", false);
-                });
+                container.selectAll(".node, .link").classed("highlight", false);
             }
 
             return d3.drag()

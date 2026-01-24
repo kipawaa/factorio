@@ -15,6 +15,8 @@ const height = window.innerHeight;
 
 const container = svg.append("g");
 
+let simulationIsRunning = true;
+
 const zoom = d3
     .zoom()
     .scaleExtent([0.1, 5])
@@ -159,9 +161,13 @@ d3.json("recipes.json")
 
         function drag(simulation) {
             function dragstarted(event) {
-                if (!event.active) simulation.alphaTarget(0.3).restart();
-                event.subject.fx = event.subject.x;
-                event.subject.fy = event.subject.y;
+                if (!event.active && simulationIsRunning) simulation.alphaTarget(0.3).restart();
+
+                // get pointer position from d3
+                const [mx, my] = d3.pointer(event, container.node());
+                
+                event.subject.fx = mx;
+                event.subject.fy = my;
 
                 if (event.sourceEvent.buttons === 1) {
                     traverseToIngredient(event.subject, (selection) => {
@@ -175,14 +181,31 @@ d3.json("recipes.json")
             }
 
             function dragged(event) {
-                event.subject.fx = event.x;
-                event.subject.fy = event.y;
+                // get pointer position from d3
+                const [mx, my] = d3.pointer(event, container.node());
+
+                event.subject.fx = mx;
+                event.subject.fy = my;
+
+                if (!simulationIsRunning) {
+                    d3.select(this).attr("transform", `translate(${mx}, ${my})`);
+                    link.filter(l => l.source.id === event.subject.id || l.target.id === event.subject.id)
+                                .each(function(l) {
+                                    const isSource = l.source.id === event.subject.id;
+                                    d3.select(this)
+                                        .attr(isSource ? "x1" : "x2", mx)
+                                        .attr(isSource ? "y1" : "y2", my);
+                                });
+                }
             }
 
             function dragended(event) {
-                if (!event.active) simulation.alphaTarget(0);
-                event.subject.fx = null;
-                event.subject.fy = null;
+                if (!event.active && simulationIsRunning) simulation.alphaTarget(0);
+
+                if (simulationIsRunning) {
+                    event.subject.fx = null;
+                    event.subject.fy = null;
+                }
                 container.selectAll(".node, .link").classed("highlight", false);
             }
 
@@ -192,5 +215,22 @@ d3.json("recipes.json")
                 .on("drag", dragged)
                 .on("end", dragended);
         }
+        
+        window.addEventListener("keydown", (event) => {
+            // Check if the pressed key is the Spacebar
+            if (event.code === "Space" || event.key === " ") {
+                event.preventDefault(); // Prevent page scrolling
+
+                if (simulationIsRunning) {
+                    // PAUSE: Stop the simulation completely
+                    simulation.stop();
+                    simulationIsRunning = false;
+                } else {
+                    // RESTART: Reset alpha to 1 to give it full energy to reorganize
+                    simulation.alpha(0.5).restart();
+                    simulationIsRunning = true;
+                }
+            }
+        });
     })
     .catch((err) => console.error("Data loading failed:", err));

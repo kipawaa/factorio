@@ -8,3 +8,4 @@ A [d3.js force graph](https://d3js.org/d3-force) of the crafting tree in factori
 - Right click and hold a node to view all of the products made from it!
 - Pan around, zoom and drag nodes restart the simulation and find a more stable configuration.
 - Each node is a link to the factorio wiki page, double click for easy access to more details about each item.
+- Use spacebar to pause/unpause the simulation, allowing full control over node positions to perfectly design your layout!

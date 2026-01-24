@@ -1,21 +1,43 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Factorio Crafting Graph</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css" />
     <script src="https://d3js.org/d3.v7.min.js"></script>
-</head>
-<body>
-
+  </head>
+  <body>
     <div id="controls">
-        <h1>Factorio Crafting Graph</h1>
-        <p>Scroll to zoom, drag to pan or move nodes.</p>
+      <h1>Factorio Crafting Graph</h1>
+      <p>Scroll to zoom, drag to pan or move nodes.</p>
+    </div>
+
+    <div id="help-menu" class="help-hidden">
+      <button id="help-toggle">?</button>
+      <div class="help-content">
+        <h3>Manual</h3>
+        <hr />
+        <ul>
+          <li>
+            <strong>Left Click + Drag:</strong> Move node & highlight
+            <em>Ingredients</em>
+          </li>
+          <li>
+            <strong>Right Click + Drag:</strong> Move node & highlight
+            <em>Products</em>
+          </li>
+          <li>
+            <strong>Spacebar:</strong> Pause/Resume Physics (Manual Layout Mode)
+          </li>
+          <li><strong>Scroll / Pinch:</strong> Zoom in/out</li>
+          <li><strong>Double Click Node:</strong> Open Official Wiki</li>
+        </ul>
+      </div>
     </div>
 
     <svg id="viz"></svg>
 
     <script src="graph.js"></script>
-</body>
+  </body>
 </html>

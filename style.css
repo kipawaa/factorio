@@ -61,3 +61,48 @@ p { margin: 5px 0; font-size: 0.8rem; opacity: 0.7; }
     stroke: #ff1493;
     stroke-width: 3px;
 }
+
+#help-menu {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+    /* Use flexbox to stack button and menu vertically */
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end; /* Keeps everything pinned to the right */
+}
+
+#help-toggle {
+    /* Remove position: absolute to let flexbox handle the alignment */
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #ff9800;
+    border: 2px solid #333;
+    color: #000;
+    font-weight: bold;
+    cursor: pointer;
+    z-index: 1001;
+    /* Prevent the button from being "pushed" by long text */
+    flex-shrink: 0; 
+}
+
+.help-content {
+    margin-top: 10px; /* Space between the button and the box */
+    background: rgba(45, 45, 45, 0.95);
+    padding: 20px;
+    border: 1px solid #ff9800;
+    border-radius: 8px;
+    width: 300px;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.5);
+    display: none;
+}
+
+#help-menu.open .help-content {
+    display: block;
+}
+#help-menu h3 { margin-top: 0; color: #ff9800; }
+#help-menu ul { padding-left: 20px; }
+#help-menu li { margin-bottom: 10px; font-size: 14px; }
+#help-menu hr { border: 0; border-top: 1px solid #555; margin: 10px 0; }

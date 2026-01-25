@@ -10,3 +10,4 @@ A [d3.js force graph](https://d3js.org/d3-force) of the crafting tree in factori
 - Each node is a link to the factorio wiki page, double click for easy access to more details about each item.
 - Use spacebar to pause/unpause the simulation, allowing full control over node positions to perfectly design your layout!
 - Use the toggle in the help menu to enable snap-to-grid for perfectly straight, organized planning.
+- Use the search bar to zoom in on those sneaky sub-ingredients or faraway results.

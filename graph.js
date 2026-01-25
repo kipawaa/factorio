@@ -73,7 +73,7 @@ const gridBackground = container
   .attr("x", -width * 5)
   .attr("y", -height * 5)
   .attr("fill", "url(#grid-pattern)")
-    .attr("pointer-events", "none")
+  .attr("pointer-events", "none")
   .attr("opacity", 0);
 
 // --- Load and Render ---
@@ -138,6 +138,61 @@ d3.json("recipes.json")
           // update node
           traverseToProduct(consumer, callback);
         });
+    }
+
+    const searchInput = document.getElementById("node-search");
+    const searchResults = document.getElementById("search-results");
+
+    searchInput.addEventListener("input", (e) => {
+      const query = e.target.value.toLowerCase();
+      searchResults.innerHTML = "";
+
+      if (query.length < 1) {
+        searchResults.style.display = "none";
+        return;
+      }
+
+      const matches = nodes
+        .filter((n) => n.name.toLowerCase().includes(query))
+        .slice(0, 10);
+
+      if (matches.length > 0) {
+        searchResults.style.display = "block";
+        matches.forEach((match) => {
+          const div = document.createElement("div");
+          div.className = "search-item";
+          div.textContent = match.name;
+          div.onclick = () => centerOnNode(match);
+          searchResults.appendChild(div);
+        });
+      } else {
+        searchResults.style.display = "none";
+      }
+    });
+
+    function centerOnNode(targetNode) {
+      searchResults.style.display = "none";
+      searchInput.value = targetNode.name;
+
+      // Calculate the transform to center the node
+      // Formula: [Half Screen] - [Node Position * Scale]
+      const scale = 1.2; // Zoom in closer for the search
+      const x = width / 2 - targetNode.x * scale;
+      const y = height / 2 - targetNode.y * scale;
+
+      svg
+        .transition()
+        .duration(750)
+        .call(zoom.transform, d3.zoomIdentity.translate(x, y).scale(scale));
+
+      // Visual feedback: Pulse the searched node
+      d3.select(`#${targetNode.id} circle`)
+        .transition()
+        .duration(200)
+        .attr("r", CONFIG.nodeRadius * 3)
+        .transition()
+        .duration(500)
+        .attr("r", CONFIG.nodeRadius);
     }
 
     const simulation = d3
@@ -284,6 +339,13 @@ d3.json("recipes.json")
     }
 
     window.addEventListener("keydown", (event) => {
+      // 1. If the user is typing in the search box (or any input), DON'T pause the graph
+      if (
+        event.target.tagName === "INPUT" ||
+        event.target.tagName === "TEXTAREA"
+      ) {
+        return;
+      }
       // Check if the pressed key is the Spacebar
       if (event.code === "Space" || event.key === " ") {
         event.preventDefault(); // Prevent page scrolling

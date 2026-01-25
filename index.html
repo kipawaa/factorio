@@ -8,11 +8,15 @@
     <script src="https://d3js.org/d3.v7.min.js"></script>
   </head>
   <body>
-    <div id="controls">
-      <h1>Factorio Crafting Graph</h1>
-      <p>Scroll to zoom, drag to pan or move nodes.</p>
+    <div id="search-container">
+      <input
+        type="text"
+        id="node-search"
+        placeholder="Search components (e.g. Iron Plate)..."
+        autocomplete="off"
+      />
+      <div id="search-results"></div>
     </div>
-
     <div id="help-menu" class="help-hidden">
       <button id="help-toggle">?</button>
       <div class="help-content">

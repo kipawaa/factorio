@@ -1,118 +1,182 @@
 body {
-    margin: 0;
-    overflow: hidden;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #181818;
-    color: #e0e0e0;
+  margin: 0;
+  overflow: hidden;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #181818;
+  color: #e0e0e0;
 }
 
 #viz {
-    width: 100vw;
-    height: 100vh;
-    display: block;
+  width: 100vw;
+  height: 100vh;
+  display: block;
+}
+
+#search-container {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  z-index: 1000;
+  width: 250px;
+}
+
+#node-search {
+  width: 100%;
+  padding: 10px;
+  background: rgba(45, 45, 45, 0.9);
+  border: 1px solid #ff9800;
+  border-radius: 4px;
+  color: white;
+  font-family: inherit;
+  outline: none;
+}
+
+#node-search:focus {
+  box-shadow: 0 0 8px #ff9800;
+}
+
+#search-results {
+  background: rgba(30, 30, 30, 0.95);
+  border: 1px solid #555;
+  border-top: none;
+  max-height: 200px;
+  overflow-y: auto;
+  display: none;
+}
+
+.search-item {
+  padding: 8px 10px;
+  cursor: pointer;
+  color: #ccc;
+  font-size: 14px;
+}
+
+.search-item:hover {
+  background: #ff9800;
+  color: black;
 }
 
 #controls {
-    position: absolute;
-    top: 20px;
-    left: 20px;
-    pointer-events: none;
-    z-index: 10;
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  pointer-events: none;
+  z-index: 10;
 }
 
-h1 { margin: 0; font-size: 1.5rem; color: #ff9800; }
-p { margin: 5px 0; font-size: 0.8rem; opacity: 0.7; }
+h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: #ff9800;
+}
+p {
+  margin: 5px 0;
+  font-size: 0.8rem;
+  opacity: 0.7;
+}
 
 .link {
-    stroke: #555;
-    stroke-opacity: 0.5;
-    stroke-width: 2px;
-    fill: #ff9800;
+  stroke: #555;
+  stroke-opacity: 0.5;
+  stroke-width: 2px;
+  fill: #ff9800;
 }
 
 .link.highlight {
-    stroke: pink !important;
-    stroke-opacity: 1 !important;
-    stroke-width: 4px !important;
+  stroke: pink !important;
+  stroke-opacity: 1 !important;
+  stroke-width: 4px !important;
 }
 
 .node text {
-    font-size: 12px;
-    fill: #ffffff !important;
-    pointer-events: none;
-    text-shadow: 2px 2px 4px #000000;
-    font-family: sans-serif;
+  font-size: 12px;
+  fill: #ffffff !important;
+  pointer-events: none;
+  text-shadow: 2px 2px 4px #000000;
+  font-family: sans-serif;
 }
 
 .node.leaf circle {
-    fill: #4CAF50; 
+  fill: #4caf50;
 }
 
 .node.raw circle {
-    fill: #ff9800; 
+  fill: #ff9800;
 }
 
 .node.ingredient circle {
-    fill: #2196f3; 
+  fill: #2196f3;
 }
 
 .node.highlight circle {
-    fill: pink !important;
-    stroke: #ff1493;
-    stroke-width: 3px;
+  fill: pink !important;
+  stroke: #ff1493;
+  stroke-width: 3px;
 }
 
 #help-menu {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    z-index: 1000;
-    /* Use flexbox to stack button and menu vertically */
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end; /* Keeps everything pinned to the right */
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+  /* Use flexbox to stack button and menu vertically */
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end; /* Keeps everything pinned to the right */
 }
 
 #help-toggle {
-    /* Remove position: absolute to let flexbox handle the alignment */
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background: #ff9800;
-    border: 2px solid #333;
-    color: #000;
-    font-weight: bold;
-    cursor: pointer;
-    z-index: 1001;
-    /* Prevent the button from being "pushed" by long text */
-    flex-shrink: 0; 
+  /* Remove position: absolute to let flexbox handle the alignment */
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #ff9800;
+  border: 2px solid #333;
+  color: #000;
+  font-weight: bold;
+  cursor: pointer;
+  z-index: 1001;
+  /* Prevent the button from being "pushed" by long text */
+  flex-shrink: 0;
 }
 
 .help-content {
-    margin-top: 10px; /* Space between the button and the box */
-    background: rgba(45, 45, 45, 0.95);
-    padding: 20px;
-    border: 1px solid #ff9800;
-    border-radius: 8px;
-    width: 300px;
-    box-shadow: 0 8px 16px rgba(0,0,0,0.5);
-    display: none;
+  margin-top: 10px; /* Space between the button and the box */
+  background: rgba(45, 45, 45, 0.95);
+  padding: 20px;
+  border: 1px solid #ff9800;
+  border-radius: 8px;
+  width: 300px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
+  display: none;
 }
 
 #help-menu.open .help-content {
-    display: block;
+  display: block;
 }
-#help-menu h3 { margin-top: 0; color: #ff9800; }
-#help-menu ul { padding-left: 20px; }
-#help-menu li { margin-bottom: 10px; font-size: 14px; }
-#help-menu hr { border: 0; border-top: 1px solid #555; margin: 10px 0; }
+#help-menu h3 {
+  margin-top: 0;
+  color: #ff9800;
+}
+#help-menu ul {
+  padding-left: 20px;
+}
+#help-menu li {
+  margin-bottom: 10px;
+  font-size: 14px;
+}
+#help-menu hr {
+  border: 0;
+  border-top: 1px solid #555;
+  margin: 10px 0;
+}
 
 #viz {
-    background-color: #1a1a1a;
+  background-color: #1a1a1a;
 }
 
 body.paused #viz {
-    background-image: 
-        linear-gradient(to right, #222 1px, transparent 1px),
-        linear-gradient(to bottom, #222 1px, transparent 1px);
+  background-image:
+    linear-gradient(to right, #222 1px, transparent 1px),
+    linear-gradient(to bottom, #222 1px, transparent 1px);
 }

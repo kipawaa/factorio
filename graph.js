@@ -7,15 +7,18 @@ const CONFIG = {
   forceStrength: -4000,
   linkDistance: 150,
   linkStrength: 0.1,
+  gridSize: 50,
 };
+
+let simulationIsRunning = true;
+
+let snapToGrid = false;
 
 const svg = d3.select("#viz");
 const width = window.innerWidth;
 const height = window.innerHeight;
 
 const container = svg.append("g");
-
-let simulationIsRunning = true;
 
 const zoom = d3
   .zoom()
@@ -34,9 +37,10 @@ svg.call(
 );
 svg.call(zoom);
 
+const defs = container.append("defs"); // Select existing defs
+
 // --- Define Arrowheads ---
-container
-  .append("defs")
+defs
   .append("marker")
   .attr("id", "arrowhead")
   .attr("viewBox", "0 -5 10 10")
@@ -48,6 +52,29 @@ container
   .append("path")
   .attr("d", "M0,-5L10,0L0,5")
   .attr("class", "link");
+
+// --- Define Grid ---
+const pattern = defs
+  .append("pattern")
+  .attr("id", "grid-pattern")
+  .attr("width", CONFIG.gridSize)
+  .attr("height", CONFIG.gridSize)
+  .attr("patternUnits", "userSpaceOnUse")
+  .append("path")
+  .attr("d", `M ${CONFIG.gridSize} 0 L 0 0 0 ${CONFIG.gridSize}`)
+  .attr("fill", "none")
+  .attr("stroke", "#555")
+  .attr("stroke-width", "1");
+
+const gridBackground = container
+  .insert("rect", ":first-child") // Insert behind everything
+  .attr("width", width * 10) // Make it huge to cover panning
+  .attr("height", height * 10)
+  .attr("x", -width * 5)
+  .attr("y", -height * 5)
+  .attr("fill", "url(#grid-pattern)")
+    .attr("pointer-events", "none")
+  .attr("opacity", 0);
 
 // --- Load and Render ---
 d3.json("recipes.json")
@@ -201,12 +228,17 @@ d3.json("recipes.json")
 
       function dragged(event) {
         // get pointer position from d3
-        const [mx, my] = d3.pointer(event, container.node());
+        let [mx, my] = d3.pointer(event, container.node());
 
         event.subject.fx = mx;
         event.subject.fy = my;
 
         if (!simulationIsRunning) {
+          if (snapToGrid) {
+            mx = Math.round(mx / CONFIG.gridSize) * CONFIG.gridSize;
+            my = Math.round(my / CONFIG.gridSize) * CONFIG.gridSize;
+          }
+
           d3.select(this).attr("transform", `translate(${mx}, ${my})`);
           link
             .filter(
@@ -257,14 +289,26 @@ d3.json("recipes.json")
         event.preventDefault(); // Prevent page scrolling
 
         if (simulationIsRunning) {
-          // PAUSE: Stop the simulation completely
           simulation.stop();
           simulationIsRunning = false;
+          if (snapToGrid) {
+            gridBackground.attr("opacity", 1);
+          }
         } else {
-          // RESTART: Reset alpha to 1 to give it full energy to reorganize
-          simulation.alpha(0.5).restart();
+          simulation.alpha(1).restart();
           simulationIsRunning = true;
+          gridBackground.attr("opacity", 0);
         }
+      }
+    });
+
+    const snapToggle = document.getElementById("grid-snap-toggle");
+    snapToggle.addEventListener("change", (e) => {
+      snapToGrid = e.target.checked;
+      if (snapToGrid && !simulationIsRunning) {
+        gridBackground.attr("opacity", 1);
+      } else {
+        gridBackground.attr("opacity", 0);
       }
     });
   })

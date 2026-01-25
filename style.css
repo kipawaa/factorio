@@ -106,3 +106,13 @@ p { margin: 5px 0; font-size: 0.8rem; opacity: 0.7; }
 #help-menu ul { padding-left: 20px; }
 #help-menu li { margin-bottom: 10px; font-size: 14px; }
 #help-menu hr { border: 0; border-top: 1px solid #555; margin: 10px 0; }
+
+#viz {
+    background-color: #1a1a1a;
+}
+
+body.paused #viz {
+    background-image: 
+        linear-gradient(to right, #222 1px, transparent 1px),
+        linear-gradient(to bottom, #222 1px, transparent 1px);
+}
